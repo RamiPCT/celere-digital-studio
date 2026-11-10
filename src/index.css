@@ -44,6 +44,70 @@
   box-shadow: 0 0 30px -10px rgba(255, 255, 255, 0.1);
 }
 
+/* =========================================================================
+   ANIMACIONES DE FLOTACIÓN SUAVE (LEVITAÇÃO MAGNÉTICA PARA LOS RUBROS)
+   ========================================================================= */
+@keyframes float-pill-a {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-0.5deg);
+  }
+}
+
+@keyframes float-pill-b {
+  0%, 100% {
+    transform: translateY(-4px) rotate(0.5deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(-0.5deg);
+  }
+}
+
+@keyframes float-pill-c {
+  0%, 100% {
+    transform: translateY(2px) rotate(-0.5deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.5deg);
+  }
+}
+
+@keyframes float-pill-d {
+  0%, 100% {
+    transform: translateY(-6px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(7px) rotate(0.5deg);
+  }
+}
+
+.animate-floating-1 {
+  animation: float-pill-a 4.2s ease-in-out infinite;
+}
+
+.animate-floating-2 {
+  animation: float-pill-b 4.8s ease-in-out infinite 0.3s;
+}
+
+.animate-floating-3 {
+  animation: float-pill-c 4.5s ease-in-out infinite 0.6s;
+}
+
+.animate-floating-4 {
+  animation: float-pill-d 5.1s ease-in-out infinite 0.9s;
+}
+
+/* Al pasar el mouse, pausamos la flotación y la elevamos para que sea fácil cliquear */
+.animate-floating-1:hover,
+.animate-floating-2:hover,
+.animate-floating-3:hover,
+.animate-floating-4:hover {
+  animation-play-state: paused;
+  transform: translateY(-14px) scale(1.04);
+}
+
 /* Scrollbar sutil y minimalista */
 ::-webkit-scrollbar {
   width: 6px;

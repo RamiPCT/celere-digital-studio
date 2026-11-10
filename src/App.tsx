@@ -412,55 +412,85 @@ export default function App() {
               No mostramos simples fotos: cada demo es una mini-web funcional con catálogo, cartas interactivas, selección de turnos o carritos de compra.
             </p>
 
-            {/* Selector de Rubros */}
-            <div className="mt-8 flex justify-center gap-2 flex-wrap">
+            {/* Selector de Rubros Flotantes (Levitación Magnética Dinámica) */}
+            <div className="mt-10 mb-4 py-4 flex justify-center gap-3 sm:gap-4 flex-wrap items-center">
+              
+              {/* Rubro 1: Gastronomía */}
               <button
                 onClick={() => setActiveDemoTab('gastro')}
-                className={`px-5 py-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all flex items-center gap-2 ${
+                className={`group px-6 py-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-xl relative cursor-pointer ${
                   activeDemoTab === 'gastro'
-                    ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.35)] scale-105'
-                    : 'bg-zinc-950 text-zinc-400 hover:text-white border border-white/10'
+                    ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] scale-110 -translate-y-2 z-20 border-2 border-white'
+                    : 'animate-floating-1 bg-zinc-950/90 text-zinc-300 hover:text-white border border-white/20 hover:border-amber-400/80 hover:shadow-[0_0_20px_rgba(251,191,36,0.3)] z-10'
                 }`}
               >
+                <span className="w-2 h-2 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
                 <Utensils className="w-4 h-4 text-amber-400" />
                 <span>1. Gastronomía & Bar</span>
+                {activeDemoTab === 'gastro' && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
+                    ACTIVO
+                  </span>
+                )}
               </button>
 
+              {/* Rubro 2: Salud & Estética */}
               <button
                 onClick={() => setActiveDemoTab('health')}
-                className={`px-5 py-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all flex items-center gap-2 ${
+                className={`group px-6 py-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-xl relative cursor-pointer ${
                   activeDemoTab === 'health'
-                    ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.35)] scale-105'
-                    : 'bg-zinc-950 text-zinc-400 hover:text-white border border-white/10'
+                    ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] scale-110 -translate-y-2 z-20 border-2 border-white'
+                    : 'animate-floating-2 bg-zinc-950/90 text-zinc-300 hover:text-white border border-white/20 hover:border-emerald-400/80 hover:shadow-[0_0_20px_rgba(52,211,153,0.3)] z-10'
                 }`}
               >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
                 <Stethoscope className="w-4 h-4 text-emerald-400" />
                 <span>2. Salud & Estética</span>
+                {activeDemoTab === 'health' && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
+                    ACTIVO
+                  </span>
+                )}
               </button>
 
+              {/* Rubro 3: Tienda & Moda */}
               <button
                 onClick={() => setActiveDemoTab('fashion')}
-                className={`px-5 py-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all flex items-center gap-2 ${
+                className={`group px-6 py-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-xl relative cursor-pointer ${
                   activeDemoTab === 'fashion'
-                    ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.35)] scale-105'
-                    : 'bg-zinc-950 text-zinc-400 hover:text-white border border-white/10'
+                    ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] scale-110 -translate-y-2 z-20 border-2 border-white'
+                    : 'animate-floating-3 bg-zinc-950/90 text-zinc-300 hover:text-white border border-white/20 hover:border-laser-neon/80 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] z-10'
                 }`}
               >
+                <span className="w-2 h-2 rounded-full bg-laser-neon group-hover:scale-125 transition-transform" />
                 <ShoppingBag className="w-4 h-4 text-laser-neon" />
                 <span>3. Tienda & Moda</span>
+                {activeDemoTab === 'fashion' && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
+                    ACTIVO
+                  </span>
+                )}
               </button>
 
+              {/* Rubro 4: Estudios & Consultoras */}
               <button
                 onClick={() => setActiveDemoTab('legal')}
-                className={`px-5 py-3 rounded-xl text-xs font-mono font-bold tracking-wider transition-all flex items-center gap-2 ${
+                className={`group px-6 py-3.5 rounded-2xl text-xs font-mono font-bold tracking-wider transition-all duration-300 flex items-center gap-2.5 shadow-xl relative cursor-pointer ${
                   activeDemoTab === 'legal'
-                    ? 'bg-white text-black shadow-[0_0_25px_rgba(255,255,255,0.35)] scale-105'
-                    : 'bg-zinc-950 text-zinc-400 hover:text-white border border-white/10'
+                    ? 'bg-white text-black shadow-[0_0_30px_rgba(255,255,255,0.4)] scale-110 -translate-y-2 z-20 border-2 border-white'
+                    : 'animate-floating-4 bg-zinc-950/90 text-zinc-300 hover:text-white border border-white/20 hover:border-blue-400/80 hover:shadow-[0_0_20px_rgba(96,165,250,0.3)] z-10'
                 }`}
               >
+                <span className="w-2 h-2 rounded-full bg-blue-400 group-hover:scale-125 transition-transform" />
                 <Briefcase className="w-4 h-4 text-blue-400" />
                 <span>4. Estudios & Consultoras</span>
+                {activeDemoTab === 'legal' && (
+                  <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
+                    ACTIVO
+                  </span>
+                )}
               </button>
+
             </div>
           </div>
 
