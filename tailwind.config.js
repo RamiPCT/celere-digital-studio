@@ -7,27 +7,42 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#09090b',
-        surface: '#121217',
-        'surface-lighter': '#1c1c24',
-        accent: {
-          DEFAULT: '#9333ea',
-          light: '#c084fc',
-          neon: '#a855f7',
-          glow: '#7e22ce'
+        black: '#000000',
+        void: '#050507',
+        surface: {
+          DEFAULT: '#0d0d11',
+          border: 'rgba(255, 255, 255, 0.08)',
+          hover: 'rgba(255, 255, 255, 0.15)',
+        },
+        laser: {
+          purple: '#9333ea',
+          violet: '#a855f7',
+          neon: '#c084fc',
         }
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       animation: {
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow-pulse': 'glow 3s ease-in-out infinite alternate',
+        'marquee': 'marquee 35s linear infinite',
+        'marquee-reverse': 'marquee-reverse 35s linear infinite',
+        'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'laser-scan': 'scan 8s ease-in-out infinite alternate',
       },
       keyframes: {
-        glow: {
-          '0%': { opacity: '0.4', filter: 'blur(20px)' },
-          '100%': { opacity: '0.8', filter: 'blur(35px)' }
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+        'marquee-reverse': {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+        scan: {
+          '0%': { transform: 'translateY(-20%)', opacity: '0.3' },
+          '100%': { transform: 'translateY(120%)', opacity: '0.8' },
         }
       }
     },
