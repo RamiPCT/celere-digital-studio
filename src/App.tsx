@@ -33,6 +33,12 @@ import {
   Plane
 } from 'lucide-react';
 
+const WHATSAPP_PHONE = (import.meta.env.VITE_WHATSAPP_PHONE || '34600000000').replace(/\D/g, '');
+
+function waLink(text: string) {
+  return `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(text)}`;
+}
+
 // Configuración de Países e Idiomas / Monedas
 type CountryCode = 'ES' | 'AR' | 'US' | 'MX';
 
@@ -181,11 +187,11 @@ export default function App() {
     return `$${value.toLocaleString()}`;
   };
 
-  const whatsappUrl = `https://wa.me/34600000000?text=${encodeURIComponent(
+  const whatsappUrl = waLink(
     country.lang === 'en'
       ? "Hello Célere! I would like to request a quote for a custom website with monthly maintenance."
       : "¡Hola Célere! Me gustaría consultar por un proyecto web a medida con servicio de mantenimiento mensual."
-  )}`;
+  );
 
   // =========================================================================
   // SISTEMA FÍSICO: CLIC + GIROSCOPIO MÓVIL + AVIONCITOS QUE TIRAN CÓDIGO + MUÑECOS 3D ADORABLES
@@ -1227,7 +1233,7 @@ export default function App() {
                       </div>
 
                       <a 
-                        href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Aura Bistro Alicante, quiero reservar mesa para ${reserveGuests} el día ${reserveDate} a las ${reserveTime}.`)}`}
+                        href={waLink(`Hola Aura Bistro Alicante, quiero reservar mesa para ${reserveGuests} el día ${reserveDate} a las ${reserveTime}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full py-3.5 rounded-xl bg-[#d97706] hover:bg-[#b45309] text-black font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
@@ -1332,7 +1338,7 @@ export default function App() {
                           Especialista asignada: <span className="font-bold text-slate-900">{dentalDoctor}</span>
                         </div>
                         <a 
-                          href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Nova Odontología Alicante, quiero pedir cita para ${dentalTreatment} con ${dentalDoctor}.`)}`}
+                          href={waLink(`Hola Nova Odontología Alicante, quiero pedir cita para ${dentalTreatment} con ${dentalDoctor}.`)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
@@ -1452,7 +1458,7 @@ export default function App() {
                           <span>{formatMoney(cartTotal)}</span>
                         </div>
                         <a 
-                          href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Kroma Studio! Quiero comprar: ${cartItems.map(i => `${i.name} (Talla ${i.size}) x${i.count}`).join(', ')} por un total de ${formatMoney(cartTotal)}.`)}`}
+                          href={waLink(`Hola Kroma Studio! Quiero comprar: ${cartItems.map(i => `${i.name} (Talla ${i.size}) x${i.count}`).join(', ')} por un total de ${formatMoney(cartTotal)}.`)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full py-3 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
@@ -1536,7 +1542,7 @@ export default function App() {
                       </div>
 
                       <a 
-                        href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Apex Abogados Alicante, solicito consulta sobre: ${legalArea}.`)}`}
+                        href={waLink(`Hola Apex Abogados Alicante, solicito consulta sobre: ${legalArea}.`)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full py-3.5 rounded-xl bg-amber-200 hover:bg-amber-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
@@ -1721,7 +1727,7 @@ export default function App() {
               </div>
 
               <a 
-                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Célere! Hice mi presupuesto en su web para un proyecto de ${formatMoney(budget.initialTotal)} con mantenimiento de ${formatMoney(budget.monthlyTotal)}/mes. Me gustaría ponerlo en marcha.`)}`}
+                href={waLink(`Hola Célere! Hice mi presupuesto en su web para un proyecto de ${formatMoney(budget.initialTotal)} con mantenimiento de ${formatMoney(budget.monthlyTotal)}/mes. Me gustaría ponerlo en marcha.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-4 rounded-xl bg-white text-black font-display font-black text-xs flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-lg"
@@ -1824,7 +1830,7 @@ export default function App() {
               </div>
 
               <a 
-                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Célere, calculé una ganancia adicional de +${extraRevenue} ${country.currency}/mes para mi negocio y quiero coordinar la creación de mi web.`)}`}
+                href={waLink(`Hola Célere, calculé una ganancia adicional de +${extraRevenue} ${country.currency}/mes para mi negocio y quiero coordinar la creación de mi web.`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3.5 rounded-xl bg-white text-black font-display font-bold text-xs flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-md"
