@@ -15,7 +15,6 @@ import {
   Sparkles, 
   ArrowUpRight, 
   Laptop, 
-  Search, 
   ShoppingBag, 
   Calendar, 
   Utensils, 
@@ -25,19 +24,14 @@ import {
   Clock, 
   MapPin, 
   Phone, 
-  Heart,
-  AlertCircle,
-  Globe,
-  ChevronDown
+  ChevronDown,
+  Calculator,
+  Compass,
+  Award,
+  Check,
+  Send,
+  Plane
 } from 'lucide-react';
-
-const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-  </svg>
-);
 
 // Configuración de Países e Idiomas / Monedas
 type CountryCode = 'ES' | 'AR' | 'US' | 'MX';
@@ -49,7 +43,7 @@ interface CountryConfig {
   currency: string;
   lang: 'es' | 'en';
   phonePrefix: string;
-  rateToEUR: number; // Factor de conversión respecto al Euro base
+  rateToEUR: number;
   defaultTicket: number;
   minTicket: number;
   maxTicket: number;
@@ -121,16 +115,17 @@ export default function App() {
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [currentScrollY, setCurrentScrollY] = useState(0);
 
   const country = COUNTRIES[selectedCountry];
 
-  // Showroom
+  // Showroom State
   const [activeDemoTab, setActiveDemoTab] = useState<'gastro' | 'health' | 'fashion' | 'legal'>('gastro');
   const [demoDeviceView, setDemoDeviceView] = useState<'desktop' | 'mobile'>('desktop');
 
   // Demos States
   // 1. Gastronomía
-  const [gastroCategory, setGastroCategory] = useState<'principales' | 'entradas' | 'postres'>('principales');
+  const [gastroCategory, setGastroCategory] = useState<'arroces' | 'carnes' | 'tapas' | 'vinos'>('arroces');
   const [reserveGuests, setReserveGuests] = useState('2 personas');
   const [reserveTime, setReserveTime] = useState('21:30 hs');
   const [reserveDate, setReserveDate] = useState('Hoy');
@@ -141,29 +136,24 @@ export default function App() {
 
   // 3. Moda
   const [selectedSize, setSelectedSize] = useState('M');
-  const [cartCount, setCartCount] = useState(1);
+  const [selectedColor, setSelectedColor] = useState('Negro Carbón');
+  const [cartItems, setCartItems] = useState([
+    { id: 1, name: "Drop 04 // Sudadera Heavy Boxy", price: 45, size: "M", color: "Negro", count: 1 }
+  ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   // 4. Legal
-  const [legalArea, setLegalArea] = useState('Constitución Societaria & Mercantil');
+  const [legalArea, setLegalArea] = useState('Sociedad Limitada (SL) & Pacto de Socios');
 
-  // Escáner Instagram
-  const [instaInput, setInstaInput] = useState('');
-  const [scanState, setScanState] = useState<'idle' | 'scanning' | 'done'>('idle');
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scannedData, setScannedData] = useState<{
-    handle: string;
-    followers: string;
-    bounceRate: string;
-    lostClients: number;
-    wastedRevenue: string;
-  } | null>(null);
+  // Presupuestador Transparente (Reemplazo de la auditoría)
+  const [calcType, setCalcType] = useState<'landing' | 'corp' | 'store' | 'redesign'>('corp');
+  const [calcMaintenance, setCalcMaintenance] = useState<'pro' | 'basic' | 'none'>('pro');
+  const [calcUrgency, setCalcUrgency] = useState<'standard' | 'express'>('standard');
 
   // Calculadora ROI adaptada por país
   const [monthlyVisits, setMonthlyVisits] = useState(country.defaultVisits);
   const [averageTicket, setAverageTicket] = useState(country.defaultTicket);
 
-  // Cuando cambia el país, actualizamos los valores de los sliders al rango de esa moneda
   useEffect(() => {
     setMonthlyVisits(country.defaultVisits);
     setAverageTicket(country.defaultTicket);
@@ -173,11 +163,13 @@ export default function App() {
 
   useEffect(() => {
     const handleScroll = () => {
+      const scrollY = window.scrollY;
+      setCurrentScrollY(scrollY);
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const currentProgress = (window.scrollY / totalScroll) * 100;
+      const currentProgress = (scrollY / totalScroll) * 100;
       setScrollProgress(currentProgress);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -191,12 +183,12 @@ export default function App() {
 
   const whatsappUrl = `https://wa.me/34600000000?text=${encodeURIComponent(
     country.lang === 'en'
-      ? "Hello Célere! I would like to inquire about a custom website with monthly maintenance."
-      : "¡Hola Célere! Quiero consultar por un proyecto web a medida con servicio de mantenimiento mensual."
+      ? "Hello Célere! I would like to request a quote for a custom website with monthly maintenance."
+      : "¡Hola Célere! Me gustaría consultar por un proyecto web a medida con servicio de mantenimiento mensual."
   )}`;
 
   // =========================================================================
-  // SISTEMA DE CÓDIGO CAYENDO AL CLIC + PERSONITAS 3D EXPLOSIVAS
+  // SISTEMA FÍSICO: CLIC + GIROSCOPIO MÓVIL + AVIONCITOS QUE TIRAN CÓDIGO + MUÑECOS 3D ADORABLES
   // =========================================================================
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,8 +206,18 @@ export default function App() {
     };
     window.addEventListener('resize', handleResize);
 
+    // Detección de Inclinación Móvil (Giroscopio)
+    let tiltX = 0; // -1 a +1 según la inclinación
+    const handleOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null) {
+        // gamma: -90 (izquierda) a 90 (derecha)
+        tiltX = Math.max(-1.8, Math.min(1.8, e.gamma / 22));
+      }
+    };
+    window.addEventListener('deviceorientation', handleOrientation);
+
     const codeSymbols = ['</>', '{}', '=>', '01', '//', 'div', 'px', 'git', '&&', '[]', 'const', 'fn()', 'npm', '€', '$'];
-    const colors = ['#9ca3af', '#18181b', '#ef4444', '#22c55e', '#6b7280', '#10b981'];
+    const colors = ['#9ca3af', '#18181b', '#ef4444', '#22c55e', '#6b7280', '#10b981', '#38bdf8'];
 
     interface Particle {
       x: number;
@@ -239,25 +241,39 @@ export default function App() {
       opacity: number;
     }
 
-    interface Walker {
+    interface CuteWalker {
       id: number;
       x: number;
       y: number;
-      speed: number;
-      direction: number;
+      baseSpeed: number;
+      direction: number; // 1 o -1
       legAngle: number;
+      bodyBounce: number;
       isExploded: boolean;
       respawnTimer: number;
+      color: string;
+      scale: number;
+    }
+
+    interface PlaneObj {
+      x: number;
+      y: number;
+      vx: number;
+      dropCooldown: number;
+      altitude: number;
     }
 
     let particles: Particle[] = [];
     let shards: Shard[] = [];
+    let planes: PlaneObj[] = [];
+    let planeSpawnTimer = 0;
 
-    const walkers: Walker[] = [
-      { id: 1, x: 100, y: height - 25, speed: 1.2, direction: 1, legAngle: 0, isExploded: false, respawnTimer: 0 },
-      { id: 2, x: width * 0.4, y: height - 25, speed: 0.9, direction: -1, legAngle: 1.5, isExploded: false, respawnTimer: 0 },
-      { id: 3, x: width * 0.7, y: height - 25, speed: 1.4, direction: 1, legAngle: 3, isExploded: false, respawnTimer: 0 },
-      { id: 4, x: width - 80, y: height - 25, speed: 1.1, direction: -1, legAngle: 4.5, isExploded: false, respawnTimer: 0 },
+    // Personajes 3D rediseñados: Estilo Chibi / Astro-Bot amistoso y adorable
+    const walkers: CuteWalker[] = [
+      { id: 1, x: 90, y: height - 24, baseSpeed: 1.1, direction: 1, legAngle: 0, bodyBounce: 0, isExploded: false, respawnTimer: 0, color: '#38bdf8', scale: 1 },
+      { id: 2, x: width * 0.35, y: height - 24, baseSpeed: 0.9, direction: -1, legAngle: 1.5, bodyBounce: 0, isExploded: false, respawnTimer: 0, color: '#a855f7', scale: 0.95 },
+      { id: 3, x: width * 0.65, y: height - 24, baseSpeed: 1.3, direction: 1, legAngle: 3, bodyBounce: 0, isExploded: false, respawnTimer: 0, color: '#34d399', scale: 1.05 },
+      { id: 4, x: width - 80, y: height - 24, baseSpeed: 1.0, direction: -1, legAngle: 4.5, bodyBounce: 0, isExploded: false, respawnTimer: 0, color: '#fbbf24', scale: 1 },
     ];
 
     const handleClick = (e: MouseEvent) => {
@@ -266,7 +282,7 @@ export default function App() {
         particles.push({
           x: e.clientX + (Math.random() - 0.5) * 20,
           y: e.clientY + (Math.random() - 0.5) * 20,
-          vx: (Math.random() - 0.5) * 4,
+          vx: (Math.random() - 0.5) * 4 + (tiltX * 1.5),
           vy: Math.random() * 2 + 1.5,
           symbol: codeSymbols[Math.floor(Math.random() * codeSymbols.length)],
           color: colors[Math.floor(Math.random() * colors.length)],
@@ -278,23 +294,23 @@ export default function App() {
       }
 
       walkers.forEach(w => {
-        if (!w.isExploded && Math.abs(e.clientX - w.x) < 25 && Math.abs(e.clientY - (height - 30)) < 35) {
+        if (!w.isExploded && Math.abs(e.clientX - w.x) < 30 && Math.abs(e.clientY - (height - 30)) < 40) {
           triggerExplosion(w);
         }
       });
     };
 
-    const triggerExplosion = (w: Walker) => {
+    const triggerExplosion = (w: CuteWalker) => {
       w.isExploded = true;
-      w.respawnTimer = 180;
-      for (let i = 0; i < 22; i++) {
+      w.respawnTimer = 160;
+      for (let i = 0; i < 26; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 6 + 2;
+        const speed = Math.random() * 7 + 2;
         shards.push({
           x: w.x,
           y: height - 30,
           vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 2,
+          vy: Math.sin(angle) * speed - 2.5,
           size: Math.random() * 4 + 2,
           opacity: 1
         });
@@ -304,11 +320,87 @@ export default function App() {
     window.addEventListener('click', handleClick);
 
     let animationFrameId: number;
+    let planeCycle = 0;
+
     const render = () => {
       ctx.clearRect(0, 0, width, height);
+      planeCycle++;
 
+      const isNearTop = window.scrollY < 650;
       const groundY = height - 16;
 
+      // 1. GESTIÓN DE AVIONCITOS (Solo cuando estás en la parte superior)
+      if (isNearTop) {
+        planeSpawnTimer++;
+        if (planeSpawnTimer > 240 && planes.length < 2) {
+          planes.push({
+            x: -60,
+            y: 90 + Math.random() * 140,
+            vx: 2.8 + Math.random() * 1.5,
+            dropCooldown: 25,
+            altitude: Math.random() * 10
+          });
+          planeSpawnTimer = 0;
+        }
+
+        for (let i = planes.length - 1; i >= 0; i--) {
+          const plane = planes[i];
+          plane.x += plane.vx;
+          plane.y += Math.sin(planeCycle * 0.03 + plane.altitude) * 0.5;
+          plane.dropCooldown--;
+
+          // El avioncito suelta pedacitos de código en pleno vuelo
+          if (plane.dropCooldown <= 0) {
+            particles.push({
+              x: plane.x + 10,
+              y: plane.y + 12,
+              vx: (Math.random() - 0.5) * 1.5 + (tiltX * 0.8),
+              vy: Math.random() * 1.5 + 1.2,
+              symbol: codeSymbols[Math.floor(Math.random() * codeSymbols.length)],
+              color: colors[Math.floor(Math.random() * colors.length)],
+              size: 13,
+              opacity: 1,
+              rotation: 0,
+              rotSpeed: 0.04
+            });
+            plane.dropCooldown = Math.floor(Math.random() * 40) + 35;
+          }
+
+          // Dibujar avioncito de papel 3D minimalista
+          ctx.save();
+          ctx.translate(plane.x, plane.y);
+          ctx.strokeStyle = '#ffffff';
+          ctx.fillStyle = '#18181b';
+          ctx.lineWidth = 1.5;
+
+          // Cuerpo del avioncito
+          ctx.beginPath();
+          ctx.moveTo(25, 0); // nariz
+          ctx.lineTo(-12, -9); // ala izquierda
+          ctx.lineTo(-4, 0); // centro
+          ctx.lineTo(-12, 9); // ala derecha
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Pliegue central
+          ctx.beginPath();
+          ctx.moveTo(25, 0);
+          ctx.lineTo(-4, 0);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.stroke();
+
+          ctx.restore();
+
+          if (plane.x > width + 70) {
+            planes.splice(i, 1);
+          }
+        }
+      } else {
+        planes = []; // Se ocultan al bajar para no molestar
+      }
+
+      // 2. PERSONITAS ADORABLES (Afectadas por el giroscopio y tilt móvil)
       walkers.forEach(w => {
         if (w.isExploded) {
           w.respawnTimer--;
@@ -319,73 +411,97 @@ export default function App() {
           return;
         }
 
-        w.x += w.speed * w.direction;
-        w.legAngle += 0.12 * w.speed;
+        // Si el celular se inclina hacia la derecha, aceleran hacia la derecha; si se inclina a la izquierda, van a la izquierda
+        const tiltForce = tiltX * 3.5;
+        const currentSpeed = (w.baseSpeed * w.direction) + tiltForce;
 
-        if (w.direction === 1 && w.x > width + 40) {
-          w.x = -30;
-        } else if (w.direction === -1 && w.x < -40) {
-          w.x = width + 30;
+        w.x += currentSpeed;
+        w.legAngle += 0.14 * Math.abs(currentSpeed || 1);
+        w.bodyBounce = Math.abs(Math.sin(w.legAngle)) * 3;
+
+        // Desaparición por los bordes
+        if (w.x > width + 40) {
+          w.x = -35;
+        } else if (w.x < -40) {
+          w.x = width + 35;
         }
 
         const px = w.x;
-        const py = groundY;
-        const legSwing = Math.sin(w.legAngle) * 8;
+        const py = groundY - w.bodyBounce;
+        const legSwing = Math.sin(w.legAngle) * 7;
         const armSwing = Math.cos(w.legAngle) * 6;
 
         ctx.save();
         ctx.strokeStyle = '#ffffff';
-        ctx.fillStyle = '#052e16';
-        ctx.lineWidth = 1.8;
+        ctx.fillStyle = '#064e3b'; // Relleno verde oscuro a tono con la barra
+        ctx.lineWidth = 1.7;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
-        const headY = py - 32;
+        // Cabeza Chibi redondita y simpática (tipo casco/auriculares)
+        const headY = py - 26;
         ctx.beginPath();
-        ctx.arc(px, headY, 6, 0, Math.PI * 2);
+        ctx.arc(px, headY, 7.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
+        // Visor / Ojitos tiernos
+        ctx.fillStyle = w.color;
+        ctx.beginPath();
+        const faceDir = currentSpeed >= 0 ? 1 : -1;
+        ctx.arc(px + (faceDir * 3.5), headY - 1, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Pequeña antenita o detalle tecnológico lindo
+        ctx.beginPath();
+        ctx.moveTo(px, headY - 7.5);
+        ctx.lineTo(px, headY - 11);
+        ctx.stroke();
         ctx.fillStyle = '#ffffff';
         ctx.beginPath();
-        ctx.arc(px + (w.direction * 3), headY - 1, 1.5, 0, Math.PI * 2);
+        ctx.arc(px, headY - 12, 1.5, 0, Math.PI * 2);
         ctx.fill();
 
+        // Torso gordito y amigable
         ctx.beginPath();
-        ctx.moveTo(px, headY + 6);
-        ctx.lineTo(px, py - 14);
+        ctx.roundRect(px - 5, headY + 8, 10, 10, 3);
+        ctx.fill();
         ctx.stroke();
 
+        // Bracitos redondeados en balanceo
         ctx.beginPath();
-        ctx.moveTo(px, headY + 10);
-        ctx.lineTo(px - armSwing * w.direction, py - 18);
-        ctx.moveTo(px, headY + 10);
-        ctx.lineTo(px + armSwing * w.direction, py - 18);
+        ctx.moveTo(px - 4, headY + 11);
+        ctx.lineTo(px - 7 - (armSwing * 0.7), py - 7);
+        ctx.moveTo(px + 4, headY + 11);
+        ctx.lineTo(px + 7 + (armSwing * 0.7), py - 7);
         ctx.stroke();
 
+        // Piernitas simpáticas cortitas
         ctx.beginPath();
-        ctx.moveTo(px, py - 14);
-        ctx.lineTo(px - legSwing, py);
-        ctx.moveTo(px, py - 14);
-        ctx.lineTo(px + legSwing, py);
+        ctx.moveTo(px - 2.5, py - 8);
+        ctx.lineTo(px - 3 - legSwing, groundY);
+        ctx.moveTo(px + 2.5, py - 8);
+        ctx.lineTo(px + 3 + legSwing, groundY);
         ctx.stroke();
 
         ctx.restore();
       });
 
+      // 3. PARTÍCULAS DE CÓDIGO CAYENDO (Afectadas por el giroscopio)
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
-        p.x += p.vx;
+        p.x += p.vx + (tiltX * 0.7);
         p.y += p.vy;
         p.vy += 0.22;
         p.rotation += p.rotSpeed;
         p.opacity -= 0.007;
 
+        // Colisión con los muñequitos: si les cae código, EXPLOTAN
         walkers.forEach(w => {
           if (!w.isExploded) {
             const dx = Math.abs(p.x - w.x);
             const dy = Math.abs(p.y - (groundY - 18));
-            if (dx < 20 && dy < 25) {
+            if (dx < 22 && dy < 28) {
               triggerExplosion(w);
               p.opacity = 0;
             }
@@ -409,9 +525,10 @@ export default function App() {
         ctx.restore();
       }
 
+      // 4. PEDACITOS BLANCOS DE EXPLOSIÓN
       for (let i = shards.length - 1; i >= 0; i--) {
         const s = shards[i];
-        s.x += s.vx;
+        s.x += s.vx + (tiltX * 0.5);
         s.y += s.vy;
         s.vy += 0.25;
         s.opacity -= 0.02;
@@ -436,40 +553,50 @@ export default function App() {
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('click', handleClick);
+      window.removeEventListener('deviceorientation', handleOrientation);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
-  // Escaneo realista según Instagram
-  const handleStartScan = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!instaInput.trim()) return;
-    
-    const cleanHandle = instaInput.replace(/@/g, '').trim();
-    setScanState('scanning');
-    setScanProgress(20);
-
-    setTimeout(() => setScanProgress(55), 400);
-    setTimeout(() => setScanProgress(85), 900);
-    setTimeout(() => {
-      setScanProgress(100);
-      setScanState('done');
-      
-      const wasted = country.code === 'ES' 
-        ? '350 € a 780 €' 
-        : country.code === 'US' 
-        ? '$400 to $850' 
-        : '$350.000 a $650.000';
-
-      setScannedData({
-        handle: `@${cleanHandle}`,
-        followers: cleanHandle.length > 7 ? '3.850 seguidores estimados' : '5.900 seguidores estimados',
-        bounceRate: '78% de visitantes abandonan la bio',
-        lostClients: Math.floor(Math.random() * 6) + 12,
-        wastedRevenue: wasted
-      });
-    }, 1400);
+  // Manejo de carrito de la demo de moda
+  const addToCart = (name: string, price: number) => {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.name === name && item.size === selectedSize);
+      if (existing) {
+        return prev.map(item => item === existing ? { ...item, count: item.count + 1 } : item);
+      }
+      return [...prev, { id: Date.now(), name, price, size: selectedSize, color: selectedColor, count: 1 }];
+    });
+    setIsCartOpen(true);
   };
+
+  const cartTotal = cartItems.reduce((acc, curr) => acc + (curr.price * curr.count), 0);
+  const cartTotalItems = cartItems.reduce((acc, curr) => acc + curr.count, 0);
+
+  // Cálculos del Presupuestador Transparente en €
+  const calculateBudget = () => {
+    let base = 750;
+    if (calcType === 'landing') base = 390;
+    if (calcType === 'corp') base = 750;
+    if (calcType === 'store') base = 1150;
+    if (calcType === 'redesign') base = 480;
+
+    let monthly = 49;
+    if (calcMaintenance === 'basic') monthly = 29;
+    if (calcMaintenance === 'pro') monthly = 49;
+    if (calcMaintenance === 'none') monthly = 0;
+
+    let urgencyCost = 0;
+    if (calcUrgency === 'express') urgencyCost = 150;
+
+    return {
+      initialTotal: base + urgencyCost,
+      monthlyTotal: monthly,
+      days: calcUrgency === 'express' ? '48 horas' : '5 a 7 días'
+    };
+  };
+
+  const budget = calculateBudget();
 
   // Cálculos ROI
   const conversionsTraditional = Math.max(1, Math.round(monthlyVisits * 0.008));
@@ -478,12 +605,12 @@ export default function App() {
   const revenueCelere = conversionsCelere * averageTicket;
   const extraRevenue = revenueCelere - revenueTraditional;
 
-  // Textos bilingües según país (ES vs EN)
   const isEn = country.lang === 'en';
 
   return (
     <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black relative">
       
+      {/* Canvas interactivo para física de avioncitos, código cayendo y personajes */}
       <canvas 
         ref={canvasRef} 
         className="fixed inset-0 pointer-events-none z-50 w-full h-full"
@@ -494,70 +621,43 @@ export default function App() {
         style={{ width: `${scrollProgress}%` }}
       />
 
+      <div className="fixed inset-0 bg-grid-pattern opacity-30 pointer-events-none -z-20" />
+
       {/* =========================================================================
-          FONDO DE CÓDIGO ANIMADO (DESDE EL HERO HASTA LAS MUESTRAS PERSONALES)
+          FONDO DE CÓDIGO ANIMADO (DESDE EL HERO HASTA EL SHOWROOM)
          ========================================================================= */}
       <div className="absolute top-0 left-0 right-0 h-[1900px] pointer-events-none overflow-hidden select-none z-0 opacity-[0.14]">
-        
-        {/* Haz de luz de ingeniería */}
         <div className="absolute top-[-100px] left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-gradient-to-b from-purple-800/25 via-emerald-800/10 to-transparent blur-[160px]" />
         
-        {/* Terminales y líneas de código animadas en scroll */}
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 pt-24 font-mono text-[11px] leading-relaxed">
-          
-          {/* Columna de Código 1: Arquitectura & Servidor */}
           <div className="space-y-1 text-zinc-400">
             <div className="text-emerald-400 font-bold">// 01: CELERE_CORE_ENGINE.ts</div>
             <div>import &#123; createEngine, CloudflareEdge &#125; from '@celere/kernel';</div>
             <div className="text-zinc-600">/* Location: Alicante, Comunidad Valenciana, ES */</div>
-            <div>const studio = createEngine(&#123;</div>
-            <div className="pl-4 text-purple-300">region: 'eu-west-spain',</div>
-            <div className="pl-4 text-emerald-300">latency: '0.38ms',</div>
-            <div className="pl-4 text-amber-300">zeroBloat: true,</div>
-            <div className="pl-4 text-sky-300">autoDeploy: 'edge-v2'</div>
-            <div>&#125;);</div>
-            <div className="pt-2 text-zinc-500">// Benchmarking PageSpeed</div>
-            <div className="text-emerald-400">await studio.verifyLighthouseScores(&#123;</div>
-            <div className="pl-4">performance: 99,</div>
-            <div className="pl-4">accessibility: 100,</div>
-            <div className="pl-4">seo: 100</div>
-            <div>&#125;);</div>
+            <div>const studio = createEngine(&#123; region: 'eu-west-spain', latency: '0.38ms' &#125;);</div>
+            <div className="text-emerald-400">await studio.verifyLighthouseScores(&#123; performance: 99 &#125;);</div>
             <div className="pt-2 text-purple-400">export default studio.compile();</div>
           </div>
 
-          {/* Columna de Código 2: Flujo de Clientes & WhatsApp Smart */}
           <div className="space-y-1 text-zinc-400 hidden md:block">
             <div className="text-sky-400 font-bold">// 02: WHATSAPP_ROUTER.tsx</div>
-            <div>interface ClientSession &#123;</div>
-            <div className="pl-4 text-zinc-300">source: 'Instagram_Bio_Click';</div>
-            <div className="pl-4 text-zinc-300">conversionTime: '&lt; 10s';</div>
-            <div className="pl-4 text-zinc-300">cartStatus: 'Prepared';</div>
-            <div>&#125;</div>
-            <div className="pt-2">export function dispatchDirectOrder(cart: Order) &#123;</div>
+            <div>export function dispatchDirectOrder(cart: Order) &#123;</div>
             <div className="pl-4 text-emerald-400">const url = `https://wa.me/$&#123;phone&#125;?text=$&#123;cart.encoded&#125;`;</div>
-            <div className="pl-4 text-zinc-500">// 0% pérdida de carritos por registro</div>
             <div className="pl-4 text-purple-300">return window.open(url, '_blank');</div>
             <div>&#125;</div>
-            <div className="pt-2 text-zinc-600">// Build Status: SUCCESS (7.5ms)</div>
           </div>
 
-          {/* Columna de Código 3: Base de Datos & Mantenimiento */}
           <div className="space-y-1 text-zinc-400 hidden md:block">
             <div className="text-purple-400 font-bold">// 03: MONTHLY_MAINTENANCE.sh</div>
-            <div className="text-zinc-500">#!/bin/bash</div>
-            <div>echo "[CELERE] Running weekly automated backups..."</div>
             <div className="text-emerald-300">ssl_cert_status="VALID (Let's Encrypt)"</div>
             <div className="text-emerald-300">uptime_status="99.98% OK"</div>
-            <div className="text-zinc-400">optimize_images --webp-lossless --avif</div>
             <div>sync_prices_to_cdn --instant</div>
-            <div className="pt-2 text-amber-300">echo "Client server running at 100% capacity"</div>
           </div>
-
         </div>
       </div>
 
       {/* =========================================================================
-          NAVBAR CON SELECTOR DE PAÍS / MONEDA / IDIOMA (ALICANTE / ESPAÑA)
+          NAVBAR: BOTÓN LIMPIO DE CONTACTO / HABLEMOS
          ========================================================================= */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-2xl border-b border-white/15 shadow-2xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -582,7 +682,7 @@ export default function App() {
             </div>
           </a>
 
-          {/* Menú limpio sin puntos */}
+          {/* Menú visible */}
           <nav className="hidden md:flex items-center gap-1 bg-zinc-950 p-1.5 rounded-xl border border-white/15 shadow-inner">
             <a 
               href="#demos" 
@@ -591,10 +691,10 @@ export default function App() {
               {isEn ? 'LIVE DEMOS' : 'DEMOS EN VIVO'}
             </a>
             <a 
-              href="#scanner" 
+              href="#presupuesto" 
               className="px-4 py-2 rounded-lg text-xs font-mono font-bold tracking-wider text-zinc-300 hover:text-white hover:bg-white/10 transition-all"
             >
-              {isEn ? 'INSTAGRAM AUDIT' : 'AUDITORÍA INSTAGRAM'}
+              {isEn ? 'PRICE ESTIMATOR' : 'PRESUPUESTADOR'}
             </a>
             <a 
               href="#roi" 
@@ -612,7 +712,7 @@ export default function App() {
 
           <div className="hidden md:flex items-center gap-3">
             
-            {/* SELECTOR DE PAÍS / MONEDA / IDIOMA */}
+            {/* Selector de País */}
             <div className="relative">
               <button
                 onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
@@ -650,13 +750,14 @@ export default function App() {
               )}
             </div>
 
+            {/* BOTÓN LIMPIO Y DIRECTO: HABLEMOS / CONTACTAR */}
             <a 
               href={whatsappUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="px-4 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold bg-white text-black hover:bg-zinc-200 transition-all duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:scale-105"
+              className="px-5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold bg-white text-black hover:bg-zinc-200 transition-all duration-200 flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.25)] hover:scale-105"
             >
-              <span>{isEn ? 'Start Project' : 'Vender mi Proyecto'}</span>
+              <span>{isEn ? 'Get in Touch' : 'Hablemos'}</span>
               <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
@@ -672,7 +773,6 @@ export default function App() {
         {mobileMenuOpen && (
           <div className="md:hidden bg-zinc-950 border-b border-white/15 px-6 py-6 flex flex-col gap-3 font-mono">
             
-            {/* Selector de País en Mobile */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-900 border border-white/20 mb-2">
               <span className="text-xs text-zinc-400">País / Moneda:</span>
               <div className="flex gap-2">
@@ -693,8 +793,8 @@ export default function App() {
             <a href="#demos" onClick={() => setMobileMenuOpen(false)} className="py-2 px-3 rounded-lg text-sm text-zinc-200 font-bold hover:bg-white/10">
               {isEn ? 'Live Demos' : 'Demos en Vivo'}
             </a>
-            <a href="#scanner" onClick={() => setMobileMenuOpen(false)} className="py-2 px-3 rounded-lg text-sm text-zinc-200 font-bold hover:bg-white/10">
-              {isEn ? 'Instagram Audit' : 'Auditoría Instagram'}
+            <a href="#presupuesto" onClick={() => setMobileMenuOpen(false)} className="py-2 px-3 rounded-lg text-sm text-zinc-200 font-bold hover:bg-white/10">
+              {isEn ? 'Price Estimator' : 'Presupuestador Inmediato'}
             </a>
             <a href="#roi" onClick={() => setMobileMenuOpen(false)} className="py-2 px-3 rounded-lg text-sm text-zinc-200 font-bold hover:bg-white/10">
               {isEn ? 'ROI Calculator' : 'Calculadora de Ventas'}
@@ -708,7 +808,7 @@ export default function App() {
               rel="noopener noreferrer"
               className="mt-3 w-full py-3.5 rounded-xl bg-white text-black text-center font-bold font-sans flex items-center justify-center gap-2"
             >
-              <span>{isEn ? 'Chat via WhatsApp' : 'Consultar por WhatsApp'}</span>
+              <span>{isEn ? 'Chat via WhatsApp' : 'Contactar por WhatsApp'}</span>
               <MessageCircle className="w-4 h-4" />
             </a>
           </div>
@@ -728,29 +828,14 @@ export default function App() {
           </div>
 
           <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-black tracking-tight leading-[1.02] max-w-5xl mb-8">
-            {isEn ? (
-              <>
-                Websites that <br className="hidden sm:inline" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-200 to-zinc-600">
-                  crush the generic.
-                </span>
-              </>
-            ) : (
-              <>
-                Páginas web que <br className="hidden sm:inline" />
-                <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-200 to-zinc-600">
-                  destruyen lo genérico.
-                </span>
-              </>
-            )}
+            Páginas web que <br className="hidden sm:inline" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-b from-white via-zinc-200 to-zinc-600">
+              destruyen lo genérico.
+            </span>
           </h1>
 
           <p className="text-base sm:text-lg text-zinc-300 max-w-2xl font-normal leading-relaxed mb-12">
-            {isEn 
-              ? 'We design your brand-tailored web experience and manage monthly maintenance, fast hosting, and continuous updates so you can focus solely on your customers.'
-              : selectedCountry === 'ES'
-              ? 'Diseñamos la presencia web a medida de tu negocio en Alicante y toda España, encargándonos del soporte mensual, hosting ultra rápido y actualizaciones para que vos solo atiendas clientes.'
-              : 'Creamos la web a medida de tu negocio y nos encargamos del mantenimiento mensual, velocidad y actualizaciones para que vos solo te preocupes por atender clientes.'}
+            Diseñamos la presencia web a medida de tu negocio en Alicante y toda España, encargándonos del soporte mensual, hosting ultra rápido y actualizaciones para que vos solo atiendas clientes.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
@@ -773,38 +858,36 @@ export default function App() {
             </a>
           </div>
 
-          <div className="mt-16 w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
+          {/* Aviso sutil de los avioncitos */}
+          <div className="mt-8 text-[11px] font-mono text-zinc-500 flex items-center gap-2">
+            <Plane className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+            <span>Mira los aviones volando arriba soltando código sobre los muñecos del footer</span>
+          </div>
+
+          <div className="mt-12 w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
             <div className="p-4 rounded-xl bg-zinc-950/90 border border-white/15">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                {isEn ? 'Average Load Speed' : 'Carga Rápida'}
-              </span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">Carga Rápida</span>
               <div className="text-2xl font-display font-bold text-white flex items-center gap-2">
-                0.4s <span className="text-emerald-400 text-xs font-mono font-normal">Ultra</span>
+                0.4s <span className="text-emerald-400 text-xs font-mono font-normal">Instantánea</span>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-zinc-950/90 border border-white/15">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                {isEn ? 'Mobile Conversion' : 'Optimización Móvil'}
-              </span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">Optimización Móvil</span>
               <div className="text-2xl font-display font-bold text-white flex items-center gap-2">
-                100% <span className="text-zinc-400 text-xs font-mono font-normal">WhatsApp</span>
+                100% <span className="text-zinc-400 text-xs font-mono font-normal">WhatsApp Ready</span>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-zinc-950/90 border border-white/15">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                {isEn ? 'Maintenance' : 'Mantenimiento'}
-              </span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">Mantenimiento</span>
               <div className="text-2xl font-display font-bold text-white flex items-center gap-2">
                 Mensual <span className="text-emerald-400 text-xs font-mono font-normal">{country.currency}</span>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-zinc-950/90 border border-white/15">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                {isEn ? 'Initial Delivery' : 'Entrega Inicial'}
-              </span>
+              <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">Entrega Inicial</span>
               <div className="text-2xl font-display font-bold text-white flex items-center gap-2">
                 3-5 Días <span className="text-zinc-400 text-xs font-mono font-normal">Rápida</span>
               </div>
@@ -815,22 +898,20 @@ export default function App() {
       </section>
 
       {/* =========================================================================
-          SHOWROOM: DEMOS AUTÉNTICAS CON MONEDA Y LOCACIÓN ADAPTADA
+          SHOWROOM: PÁGINAS COMPLETÍSIMAS, RICAS Y NADA TECNOLÓGICAS
          ========================================================================= */}
       <section id="demos" className="py-24 px-6 border-b border-white/15 bg-black relative z-10">
         <div className="max-w-7xl mx-auto">
           
           <div className="text-center max-w-3xl mx-auto mb-10">
             <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3 block font-bold">
-              // MUESTRAS PERSONALIZADAS POR RUBRO ({country.currency})
+              // MUESTRAS COMPLETAS Y PERSONALIZADAS ({country.currency})
             </span>
             <h2 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight">
-              {isEn ? '100% Authentic Industry Demos' : 'Diseño 100% fiel al rubro de cada cliente'}
+              Páginas completas con la identidad real de cada negocio
             </h2>
             <p className="text-sm text-zinc-400 mt-4 leading-relaxed">
-              {isEn 
-                ? 'A restaurant is not a tech firm, and a dental clinic is not a dark hacker site. Each demo has its own real palette, typography, and prices in your currency.'
-                : 'Un restaurante no es una empresa de tecnología, ni una clínica es un sitio oscuro. Cada muestra tiene su propia paleta de colores, tipografía y precios adaptados a tu moneda.'}
+              Muestras con navegación real, secciones completas, fotos, testimonios, cartas gastronómicas y módulos de compra o reserva listos para vender.
             </p>
 
             {/* BOTONES FLOTANTES */}
@@ -845,7 +926,7 @@ export default function App() {
                 }`}
               >
                 <Utensils className="w-4 h-4 text-amber-500" />
-                <span>1. Restaurante & Bar ({country.currency})</span>
+                <span>1. Restaurante & Brasas (Cálido & Gourmet)</span>
                 {activeDemoTab === 'gastro' && (
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-amber-400 font-bold">
                     ACTIVO
@@ -862,7 +943,7 @@ export default function App() {
                 }`}
               >
                 <Stethoscope className="w-4 h-4 text-sky-400" />
-                <span>2. Odontología & Salud (Blanco Clínico)</span>
+                <span>2. Clínica Dental (Blanco Médico & Confianza)</span>
                 {activeDemoTab === 'health' && (
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-sky-300 font-bold">
                     ACTIVO
@@ -879,7 +960,7 @@ export default function App() {
                 }`}
               >
                 <ShoppingBag className="w-4 h-4 text-zinc-400" />
-                <span>3. Tienda & Moda ({country.currency})</span>
+                <span>3. Tienda de Ropa (Lookbook Editorial)</span>
                 {activeDemoTab === 'fashion' && (
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
                     ACTIVO
@@ -896,7 +977,7 @@ export default function App() {
                 }`}
               >
                 <Briefcase className="w-4 h-4 text-amber-200" />
-                <span>4. Estudio Jurídico & Asesoría</span>
+                <span>4. Despacho Jurídico (Serio & Prestigioso)</span>
                 {activeDemoTab === 'legal' && (
                   <span className="ml-1 px-1.5 py-0.5 rounded bg-black text-[9px] font-mono text-white font-bold">
                     ACTIVO
@@ -923,10 +1004,10 @@ export default function App() {
               <div className="px-4 py-1 rounded-lg bg-black border border-white/15 text-[11px] font-mono text-zinc-300 flex items-center gap-2">
                 <span className="text-emerald-400">https://</span>
                 <span>
-                  {activeDemoTab === 'gastro' && (selectedCountry === 'ES' ? 'aurabistro.es/carta' : 'aurabistro.com/menu')}
-                  {activeDemoTab === 'health' && (selectedCountry === 'ES' ? 'novadental.es/cita' : 'novadental.com/turnos')}
-                  {activeDemoTab === 'fashion' && (selectedCountry === 'ES' ? 'kroma.es/coleccion' : 'kromastore.com')}
-                  {activeDemoTab === 'legal' && (selectedCountry === 'ES' ? 'apexabogados.es' : 'apexpartners.com')}
+                  {activeDemoTab === 'gastro' && 'aurabistro.es/carta'}
+                  {activeDemoTab === 'health' && 'novadental.es/cita-previa'}
+                  {activeDemoTab === 'fashion' && 'kromastudio.es/lookbook'}
+                  {activeDemoTab === 'legal' && 'apexabogados.es'}
                 </span>
               </div>
 
@@ -962,128 +1043,144 @@ export default function App() {
                   : 'w-full'
               }`}>
                 
-                {/* 1. DEMO GASTRONOMÍA */}
+                {/* 1. DEMO GASTRONOMÍA COMPLETA (Aura Bistro // Alicante) */}
                 {activeDemoTab === 'gastro' && (
-                  <div className="bg-[#181411] text-[#fbf6ee] p-6 sm:p-10 font-serif text-left space-y-8">
+                  <div className="bg-[#16120e] text-[#fbf6ee] p-6 sm:p-10 font-serif text-left space-y-8">
                     
-                    <div className="text-center pb-6 border-b border-[#3d3229]">
-                      <span className="text-xs uppercase tracking-[0.3em] text-[#d97706] font-sans font-semibold">
-                        Cocina de Brasas & Arroces Mediterráneos
-                      </span>
-                      <h3 className="text-3xl sm:text-4xl font-normal text-[#fbf6ee] mt-1 font-serif tracking-tight">
-                        Aura Bistro // Alicante
-                      </h3>
-                      <div className="flex items-center justify-center gap-4 text-xs text-[#a89989] font-sans mt-2">
-                        <span>Paseo de la Explanada, Alicante</span>
-                        <span>•</span>
-                        <span>Martes a Domingos: 13:30 - 23:30 hs</span>
+                    {/* Barra Superior del Restaurante */}
+                    <div className="flex justify-between items-center text-xs font-sans text-[#a89989] pb-3 border-b border-[#31261e]">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3.5 h-3.5 text-[#d97706]" />
+                        <span>Paseo de la Explanada de España 12, Alicante</span>
+                      </div>
+                      <div className="hidden sm:flex items-center gap-2">
+                        <Phone className="w-3.5 h-3.5 text-[#d97706]" />
+                        <span>Tel: 965 21 88 XX</span>
                       </div>
                     </div>
 
+                    {/* Header Restaurante */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#31261e] gap-4">
+                      <div>
+                        <span className="text-[11px] uppercase tracking-[0.25em] text-[#d97706] font-sans font-bold">
+                          Cocina de Brasas, Arroces & Vinos DO Alicante
+                        </span>
+                        <h3 className="text-3xl sm:text-4xl font-normal text-[#fbf6ee] mt-1 font-serif">
+                          Aura Bistro & Arrocería
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2 bg-[#251d17] px-3.5 py-1.5 rounded-full border border-[#d97706]/30 text-xs font-sans">
+                        <Star className="w-3.5 h-3.5 fill-[#d97706] text-[#d97706]" />
+                        <span className="font-bold text-white">4.9 / 5</span>
+                        <span className="text-[#a89989]">(280+ reseñas)</span>
+                      </div>
+                    </div>
+
+                    {/* Menú y Categorías */}
                     <div className="font-sans">
-                      <div className="flex justify-center gap-2 pb-2 overflow-x-auto">
+                      <div className="flex gap-2 pb-2 overflow-x-auto">
                         <button
-                          onClick={() => setGastroCategory('principales')}
-                          className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                            gastroCategory === 'principales' 
-                              ? 'bg-[#d97706] text-black font-bold shadow-md' 
-                              : 'bg-[#29221d] text-[#c7b9a9] hover:text-white'
+                          onClick={() => setGastroCategory('arroces')}
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                            gastroCategory === 'arroces' ? 'bg-[#d97706] text-black shadow-md' : 'bg-[#251d17] text-[#c7b9a9]'
                           }`}
                         >
-                          Arroces & Carnes a la Brasa
+                          Arroces a la Leña
                         </button>
                         <button
-                          onClick={() => setGastroCategory('entradas')}
-                          className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                            gastroCategory === 'entradas' 
-                              ? 'bg-[#d97706] text-black font-bold shadow-md' 
-                              : 'bg-[#29221d] text-[#c7b9a9] hover:text-white'
+                          onClick={() => setGastroCategory('carnes')}
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                            gastroCategory === 'carnes' ? 'bg-[#d97706] text-black shadow-md' : 'bg-[#251d17] text-[#c7b9a9]'
                           }`}
                         >
-                          Tapas de Autor
+                          Carnes Maduradas
                         </button>
                         <button
-                          onClick={() => setGastroCategory('postres')}
-                          className={`px-4 py-2 rounded-full text-xs font-medium transition-all ${
-                            gastroCategory === 'postres' 
-                              ? 'bg-[#d97706] text-black font-bold shadow-md' 
-                              : 'bg-[#29221d] text-[#c7b9a9] hover:text-white'
+                          onClick={() => setGastroCategory('tapas')}
+                          className={`px-4 py-2 rounded-full text-xs font-bold transition-all shrink-0 ${
+                            gastroCategory === 'tapas' ? 'bg-[#d97706] text-black shadow-md' : 'bg-[#251d17] text-[#c7b9a9]'
                           }`}
                         >
-                          Postres Artesanales
+                          Tapas & Entrantes
                         </button>
                       </div>
                     </div>
 
-                    <div className="space-y-4">
-                      {gastroCategory === 'principales' && (
+                    {/* Platos */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {gastroCategory === 'arroces' && (
                         <>
-                          <div className="p-4 rounded-xl bg-[#231b16] border border-[#3d3229] flex justify-between items-start">
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
                             <div>
-                              <h4 className="text-lg font-serif text-[#fbf6ee]">Arroz del Senyoret a la Leña</h4>
-                              <p className="text-xs text-[#a89989] font-sans mt-1">
-                                Sepia de la bahía de Santa Pola, gamba roja y fumet de roca tradicional con alioli casero.
-                              </p>
-                              <span className="inline-block mt-2 text-[10px] uppercase font-sans tracking-wider text-[#d97706] font-bold">
-                                ★ Recomendación del chef
-                              </span>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Arroz a Banda Tradicional de Santa Pola</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Con sepia fresca, fondo de pescado de roca de la lonja y alioli casero de mortero.</p>
+                              <span className="inline-block mt-2 text-[10px] uppercase font-sans tracking-wider text-[#d97706] font-bold">★ El más pedido</span>
                             </div>
-                            <span className="text-lg font-serif font-bold text-[#d97706] ml-4">
-                              {formatMoney(22)}
-                            </span>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(19)}</span>
                           </div>
 
-                          <div className="p-4 rounded-xl bg-[#231b16] border border-[#3d3229] flex justify-between items-start">
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
                             <div>
-                              <h4 className="text-lg font-serif text-[#fbf6ee]">Chuletón de Vaca Rubia Madurada (600g)</h4>
-                              <p className="text-xs text-[#a89989] font-sans mt-1">
-                                Madurado 45 días en seco, asado en parrilla vasca con pimientos del padrón y patatas panaderas.
-                              </p>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Arroz Meloso con Gamba Roja de Dénia</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Gamba roja premium, alcachofas de la vega baja y azafrán en hebra.</p>
                             </div>
-                            <span className="text-lg font-serif font-bold text-[#d97706] ml-4">
-                              {formatMoney(34)}
-                            </span>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(24)}</span>
                           </div>
                         </>
                       )}
 
-                      {gastroCategory === 'entradas' && (
+                      {gastroCategory === 'carnes' && (
                         <>
-                          <div className="p-4 rounded-xl bg-[#231b16] border border-[#3d3229] flex justify-between items-start">
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
                             <div>
-                              <h4 className="text-lg font-serif text-[#fbf6ee]">Jamón Ibérico 100% Bellota & Pan con Tomate</h4>
-                              <p className="text-xs text-[#a89989] font-sans mt-1">
-                                Cortado a cuchillo al momento, con pan de cristal tostado y aceite de oliva virgen extra de Alicante.
-                              </p>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Chuletón de Vaca Rubia Gallega (650g)</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Maduración dry-aged 45 días, asado a la brasa con sal marina de Santa Pola.</p>
                             </div>
-                            <span className="text-lg font-serif font-bold text-[#d97706] ml-4">
-                              {formatMoney(19)}
-                            </span>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(36)}</span>
+                          </div>
+
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
+                            <div>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Solomillo Ibérico con Reducción de Fondillón</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Con salsa de vino dulce Fondillón de Alicante y patatas panaderas.</p>
+                            </div>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(22)}</span>
                           </div>
                         </>
                       )}
 
-                      {gastroCategory === 'postres' && (
+                      {gastroCategory === 'tapas' && (
                         <>
-                          <div className="p-4 rounded-xl bg-[#231b16] border border-[#3d3229] flex justify-between items-start">
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
                             <div>
-                              <h4 className="text-lg font-serif text-[#fbf6ee]">Tarta de Queso Fluida de Jijona</h4>
-                              <p className="text-xs text-[#a89989] font-sans mt-1">
-                                Con turrón artesanal con denominación de origen y helado de almendra tostada.
-                              </p>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Jamón Ibérico 100% de Bellota</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Con tostas de pan de cristal y tomate rallado con aceite virgen de Jaén.</p>
                             </div>
-                            <span className="text-lg font-serif font-bold text-[#d97706] ml-4">
-                              {formatMoney(7.5)}
-                            </span>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(21)}</span>
+                          </div>
+
+                          <div className="p-4 rounded-xl bg-[#201813] border border-[#382b22] flex justify-between items-start">
+                            <div>
+                              <h4 className="text-base font-serif text-[#fbf6ee]">Croquetas Caseras de Carabinero (4 uds)</h4>
+                              <p className="text-xs text-[#a89989] font-sans mt-1">Bechamel cremosa con fondo de marisco y velo de papada ibérica.</p>
+                            </div>
+                            <span className="text-base font-serif font-bold text-[#d97706] ml-4">{formatMoney(12)}</span>
                           </div>
                         </>
                       )}
                     </div>
 
-                    <div className="p-6 rounded-2xl bg-[#201813] border border-[#d97706]/40 font-sans">
-                      <div className="text-center mb-4">
-                        <span className="text-xs uppercase tracking-widest text-[#d97706] font-bold">RESERVAS EN EL ACTO</span>
-                        <h4 className="text-lg font-serif text-[#fbf6ee] mt-1">Asegurá tu mesa en terraza o salón</h4>
+                    {/* Módulo de Reserva de Mesa */}
+                    <div className="p-6 rounded-2xl bg-[#1c1510] border border-[#d97706]/40 font-sans">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                          <span className="text-xs uppercase tracking-widest text-[#d97706] font-bold">RESERVAS EN EL ACTO</span>
+                          <h4 className="text-lg font-serif text-[#fbf6ee] mt-0.5">Terraza o Salón Climatizado</h4>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-[#a89989]">
+                          <Clock className="w-3.5 h-3.5 text-[#d97706]" />
+                          <span>Respuesta inmediata en WhatsApp</span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
@@ -1092,12 +1189,13 @@ export default function App() {
                           <select 
                             value={reserveDate}
                             onChange={(e) => setReserveDate(e.target.value)}
-                            className="w-full bg-[#181411] border border-[#3d3229] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
+                            className="w-full bg-[#14100c] border border-[#382b22] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
                           >
                             <option>Hoy</option>
                             <option>Mañana</option>
                             <option>Viernes</option>
                             <option>Sábado</option>
+                            <option>Domingo</option>
                           </select>
                         </div>
                         <div>
@@ -1105,23 +1203,25 @@ export default function App() {
                           <select 
                             value={reserveTime}
                             onChange={(e) => setReserveTime(e.target.value)}
-                            className="w-full bg-[#181411] border border-[#3d3229] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
+                            className="w-full bg-[#14100c] border border-[#382b22] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
                           >
                             <option>14:00 hs (Almuerzo)</option>
+                            <option>15:00 hs (Almuerzo)</option>
                             <option>21:00 hs (Cena)</option>
                             <option>22:15 hs (Cena)</option>
                           </select>
                         </div>
                         <div>
-                          <label className="text-[10px] text-[#a89989] block mb-1">COMENSALES</label>
+                          <label className="text-[10px] text-[#a89989] block mb-1">PERSONAS</label>
                           <select 
                             value={reserveGuests}
                             onChange={(e) => setReserveGuests(e.target.value)}
-                            className="w-full bg-[#181411] border border-[#3d3229] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
+                            className="w-full bg-[#14100c] border border-[#382b22] rounded-lg px-3 py-2 text-xs text-[#fbf6ee]"
                           >
                             <option>2 comensales</option>
                             <option>4 comensales</option>
                             <option>6 comensales</option>
+                            <option>8 o más (Grupo)</option>
                           </select>
                         </div>
                       </div>
@@ -1133,68 +1233,82 @@ export default function App() {
                         className="w-full py-3.5 rounded-xl bg-[#d97706] hover:bg-[#b45309] text-black font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
                       >
                         <Calendar className="w-4 h-4" />
-                        <span>Confirmar Reserva por WhatsApp</span>
+                        <span>Confirmar Reserva de Mesa por WhatsApp</span>
                       </a>
                     </div>
 
                   </div>
                 )}
 
-                {/* 2. DEMO SALUD */}
+                {/* 2. DEMO CLÍNICA DENTAL COMPLETA (Nova Dental // Alicante) */}
                 {activeDemoTab === 'health' && (
                   <div className="bg-white text-slate-800 p-6 sm:p-10 font-sans text-left space-y-6">
                     
+                    {/* Top Bar Clínica */}
+                    <div className="flex justify-between items-center text-xs text-slate-500 pb-3 border-b border-slate-100">
+                      <span>Colegio Oficial de Odontólogos de Alicante (COEA) • Nº 03/2941</span>
+                      <span className="font-semibold text-emerald-700">Urgencias: 965 14 XX XX</span>
+                    </div>
+
+                    {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-100 gap-4">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
                           <span className="w-2 h-2 rounded-full bg-emerald-500" />
                           <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">
-                            Clínica Dental Colegiada • Alicante Centro
+                            Clínica Dental Avanzada • Alicante Centro
                           </span>
                         </div>
                         <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                          Nova Odontología <span className="text-sky-600 font-light">& Estética Dental</span>
+                          Nova Odontología <span className="text-sky-600 font-light">& Estética</span>
                         </h3>
-                        <p className="text-xs text-slate-500 mt-0.5">Dra. Valentina Ortiz • Nº Colegiado COEA 03/2941</p>
+                        <p className="text-xs text-slate-500 mt-0.5">Av. de la Estación 14, Alicante (Frente a Renfe)</p>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-semibold border border-sky-200">
-                          Av. Alfonso El Sabio 34, Alicante
+                        <span className="px-3.5 py-1.5 rounded-full bg-sky-50 text-sky-800 text-xs font-bold border border-sky-200">
+                          Financiación 12 meses sin intereses
                         </span>
                       </div>
                     </div>
 
+                    {/* Tratamientos */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
                         <h4 className="text-sm font-bold text-slate-900">Ortodoncia Invisible</h4>
-                        <p className="text-xs text-slate-600 mt-1">Alineadores transparentes con escáner 3D iTero en consulta.</p>
+                        <p className="text-xs text-slate-600 mt-1">Alineadores transparentes Invisalign con simulación 3D en la 1ª cita.</p>
                         <span className="text-xs font-bold text-sky-700 mt-2 block">
                           Desde {formatMoney(1600)}
                         </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 className="text-sm font-bold text-slate-900">Implantes de Carga Rápida</h4>
-                        <p className="text-xs text-slate-600 mt-1">Titanio con biocompatibilidad y dientes fijos en el día.</p>
+                        <h4 className="text-sm font-bold text-slate-900">Implantes de Carga Inmediata</h4>
+                        <p className="text-xs text-slate-600 mt-1">Cirugía guiada por ordenador. Dientes fijos en 24 horas.</p>
                         <span className="text-xs font-bold text-sky-700 mt-2 block">
                           Desde {formatMoney(650)}
                         </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
-                        <h4 className="text-sm font-bold text-slate-900">Higiene & Blanqueamiento</h4>
-                        <p className="text-xs text-slate-600 mt-1">Limpieza dental con ultrasonido y sesión láser de 45 min.</p>
+                        <h4 className="text-sm font-bold text-slate-900">Blanqueamiento & Carillas</h4>
+                        <p className="text-xs text-slate-600 mt-1">Carillas de porcelana ultrafinas sin tallar tu diente.</p>
                         <span className="text-xs font-bold text-sky-700 mt-2 block">
-                          {formatMoney(120)}
+                          Desde {formatMoney(180)}
                         </span>
                       </div>
                     </div>
 
-                    <div className="p-6 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-4">
-                      <div>
-                        <span className="text-xs font-bold text-sky-800 uppercase tracking-wider block">CITA PREVIA ONLINE</span>
-                        <h4 className="text-base font-bold text-slate-900">Primera visita diagnóstica con radiografía bonificada</h4>
+                    {/* Turnero Interactivo */}
+                    <div className="p-6 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-xs font-bold text-sky-800 uppercase tracking-wider block">CITA PREVIA ONLINE</span>
+                          <h4 className="text-base font-bold text-slate-900">Primera visita y radiografía panorámica gratuita</h4>
+                        </div>
+                        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                          Agenda abierta hoy
+                        </span>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -1213,28 +1327,37 @@ export default function App() {
                         ))}
                       </div>
 
-                      <a 
-                        href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Nova Odontología Alicante, quiero pedir cita para ${dentalTreatment}.`)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-3.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
-                      >
-                        <Calendar className="w-4 h-4" />
-                        <span>Solicitar Cita Previa por WhatsApp</span>
-                      </a>
+                      <div className="pt-2 border-t border-sky-200/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <div className="text-xs text-slate-600">
+                          Especialista asignada: <span className="font-bold text-slate-900">{dentalDoctor}</span>
+                        </div>
+                        <a 
+                          href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Nova Odontología Alicante, quiero pedir cita para ${dentalTreatment} con ${dentalDoctor}.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full sm:w-auto px-6 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-all"
+                        >
+                          <Calendar className="w-4 h-4" />
+                          <span>Solicitar Cita por WhatsApp</span>
+                        </a>
+                      </div>
                     </div>
 
                   </div>
                 )}
 
-                {/* 3. DEMO MODA */}
+                {/* 3. DEMO TIENDA MODA COMPLETA (Kroma Studio // España) */}
                 {activeDemoTab === 'fashion' && (
                   <div className="bg-zinc-100 text-zinc-900 p-6 sm:p-10 font-sans text-left space-y-6">
                     
+                    <div className="text-center py-1.5 px-4 rounded-lg bg-black text-white text-[11px] font-bold tracking-wider">
+                      ✦ ENVIOS EN 24/48H EN ESPAÑA • CAMBIOS GRATIS EN 30 DÍAS ✦
+                    </div>
+
                     <div className="flex items-center justify-between pb-6 border-b border-zinc-200">
                       <div>
                         <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
-                          COLECCIÓN 2026 • HECHO EN ESPAÑA
+                          DROP 04 // SEASON 2026
                         </span>
                         <h3 className="text-3xl font-black uppercase tracking-tight text-black">
                           KROMA STUDIO
@@ -1246,10 +1369,11 @@ export default function App() {
                         className="px-4 py-2 rounded-lg bg-black text-white text-xs font-bold flex items-center gap-2 shadow-sm"
                       >
                         <ShoppingBag className="w-4 h-4" />
-                        <span>Cesta ({cartCount})</span>
+                        <span>Cesta ({cartTotalItems})</span>
                       </button>
                     </div>
 
+                    {/* Selector de Talla */}
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-zinc-600">Talla:</span>
                       {['S', 'M', 'L', 'XL'].map((s) => (
@@ -1267,21 +1391,20 @@ export default function App() {
                       ))}
                     </div>
 
+                    {/* Productos */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       
                       <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase">100% Algodón 450 GSM</span>
-                            <span className="text-base font-black text-black">
-                              {formatMoney(45)}
-                            </span>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">En Stock</span>
+                            <span className="text-base font-black text-black">{formatMoney(45)}</span>
                           </div>
                           <h4 className="text-base font-bold text-zinc-900">Heavy Boxy Hoodie Black</h4>
-                          <p className="text-xs text-zinc-600 mt-1">Corte oversize fabricado con algodón peinado de alto gramaje.</p>
+                          <p className="text-xs text-zinc-600 mt-1">Algodón pesado peinado de 450 GSM. Confeccionado en talleres de Portugal.</p>
                         </div>
                         <button
-                          onClick={() => setCartCount(cartCount + 1)}
+                          onClick={() => addToCart("Heavy Boxy Hoodie Black", 45)}
                           className="mt-4 w-full py-2.5 rounded bg-black hover:bg-zinc-800 text-white text-xs font-bold flex items-center justify-center gap-1.5"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -1292,16 +1415,14 @@ export default function App() {
                       <div className="p-4 rounded-xl bg-white border border-zinc-200 shadow-sm flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start mb-2">
-                            <span className="text-[10px] font-bold text-zinc-500 uppercase">Tejido Técnico Ripstop</span>
-                            <span className="text-base font-black text-black">
-                              {formatMoney(55)}
-                            </span>
+                            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">Últimas Unidades</span>
+                            <span className="text-base font-black text-black">{formatMoney(55)}</span>
                           </div>
                           <h4 className="text-base font-bold text-zinc-900">Pantalón Cargo Wide Leg</h4>
-                          <p className="text-xs text-zinc-600 mt-1">Pantalón ancho impermeable con 6 bolsillos utilitarios.</p>
+                          <p className="text-xs text-zinc-600 mt-1">Tejido técnico ripstop impermeable con 6 bolsillos y ajuste en tobillos.</p>
                         </div>
                         <button
-                          onClick={() => setCartCount(cartCount + 1)}
+                          onClick={() => addToCart("Pantalón Cargo Wide Leg", 55)}
                           className="mt-4 w-full py-2.5 rounded bg-black hover:bg-zinc-800 text-white text-xs font-bold flex items-center justify-center gap-1.5"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -1311,70 +1432,117 @@ export default function App() {
 
                     </div>
 
-                    <a 
-                      href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Kroma! Quiero pedir el Heavy Boxy Hoodie en Talla ${selectedSize} por ${formatMoney(45)}.`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Pedir directamente por WhatsApp</span>
-                    </a>
+                    {/* Resumen del pedido en WhatsApp */}
+                    {cartItems.length > 0 && (
+                      <div className="p-4 rounded-xl bg-white border-2 border-black space-y-3 shadow-md">
+                        <div className="flex justify-between items-center text-xs font-bold border-b border-zinc-200 pb-2">
+                          <span>RESUMEN DEL PEDIDO ({cartTotalItems} prendas)</span>
+                          <span className="text-emerald-700">Envío Gratis</span>
+                        </div>
+                        <div className="space-y-1">
+                          {cartItems.map((item, idx) => (
+                            <div key={idx} className="flex justify-between text-xs text-zinc-700">
+                              <span>{item.name} ({item.size}) x{item.count}</span>
+                              <span className="font-bold text-black">{formatMoney(item.price * item.count)}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="pt-2 border-t border-zinc-200 flex justify-between font-bold text-sm">
+                          <span>TOTAL:</span>
+                          <span>{formatMoney(cartTotal)}</span>
+                        </div>
+                        <a 
+                          href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Kroma Studio! Quiero comprar: ${cartItems.map(i => `${i.name} (Talla ${i.size}) x${i.count}`).join(', ')} por un total de ${formatMoney(cartTotal)}.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-3 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          <span>Finalizar Pedido por WhatsApp</span>
+                        </a>
+                      </div>
+                    )}
 
                   </div>
                 )}
 
-                {/* 4. DEMO LEGAL */}
+                {/* 4. DEMO DESPACHO JURÍDICO COMPLETA (Apex Abogados // Alicante) */}
                 {activeDemoTab === 'legal' && (
                   <div className="bg-[#0f172a] text-[#f8fafc] p-6 sm:p-10 font-serif text-left space-y-6">
                     
+                    <div className="flex justify-between items-center text-xs font-sans text-slate-400 pb-3 border-b border-slate-700">
+                      <span>Ilustre Colegio de la Abogacía de Alicante (ICALI)</span>
+                      <span>Sede: Plaza Gabriel Miró 4, Alicante</span>
+                    </div>
+
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-slate-700 gap-4">
                       <div>
                         <span className="text-xs font-sans tracking-[0.2em] text-amber-200 uppercase font-semibold">
-                          Alicante • Valencia • Madrid
+                          Despacho de Abogados de Empresa & Mercantil
                         </span>
                         <h3 className="text-3xl font-normal text-white mt-1">
-                          Apex & Asociados <span className="text-slate-400 font-sans text-sm font-light">Abogados de Empresa</span>
+                          Apex & Asociados Abogados
                         </h3>
-                        <p className="text-xs text-slate-400 font-sans mt-1">Despacho especializado en pymes, empresas turísticas y startups.</p>
+                        <p className="text-xs text-slate-400 font-sans mt-1">Especialistas en asesoramiento societario, fiscal y laboral para empresas.</p>
                       </div>
 
-                      <div className="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-sans text-xs">
-                        Colegio de la Abogacía de Alicante (ICALI)
+                      <div className="px-3.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-sans text-xs">
+                        Atención Confidencial
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-sans">
                       <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
                         <h4 className="text-sm font-bold text-amber-200">Derecho Mercantil & SL</h4>
-                        <p className="text-xs text-slate-400">Constitución de Sociedades Limitadas, pactos de socios y contratos mercantiles.</p>
+                        <p className="text-xs text-slate-400">Constitución rápida de Sociedades Limitadas, pactos de socios y fusiones.</p>
                       </div>
 
                       <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
-                        <h4 className="text-sm font-bold text-amber-200">Derecho Laboral Empresarial</h4>
-                        <p className="text-xs text-slate-400">Prevención de conflictos de personal, despidos objetivos y defensa en SMAC.</p>
+                        <h4 className="text-sm font-bold text-amber-200">Laboral & Seguridad Social</h4>
+                        <p className="text-xs text-slate-400">Contratos de alta dirección, despidos objetivos y representación en SMAC.</p>
                       </div>
 
                       <div className="p-4 rounded-xl bg-slate-800/80 border border-slate-700 space-y-1">
-                        <h4 className="text-sm font-bold text-amber-200">Empresa Familiar & Sucesiones</h4>
-                        <p className="text-xs text-slate-400">Protocolo familiar para garantizar la continuidad del patrimonio y el negocio.</p>
+                        <h4 className="text-sm font-bold text-amber-200">Fiscalidad Inmobiliaria</h4>
+                        <p className="text-xs text-slate-400">Asesoramiento legal para no residentes y compraventas en la Costa Blanca.</p>
                       </div>
                     </div>
 
                     <div className="p-6 rounded-2xl bg-slate-800 border border-slate-700 font-sans space-y-4">
                       <div>
-                        <span className="text-xs uppercase tracking-wider text-amber-200 font-bold">SOLICITUD DE CONSULTA</span>
-                        <h4 className="text-base font-bold text-white">Reunión con un abogado en Alicante o por videollamada</h4>
+                        <span className="text-xs uppercase tracking-wider text-amber-200 font-bold">CONSULTA PROFESIONAL</span>
+                        <h4 className="text-base font-bold text-white">Reunión presencial en despacho o videoconferencia</h4>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {[
+                          'Sociedad Limitada (SL) & Pacto de Socios',
+                          'Conflicto Laboral de Empresa',
+                          'Compraventa Inmobiliaria en Alicante',
+                          'Reclamación de Deudas Comerciales'
+                        ].map((m) => (
+                          <button
+                            key={m}
+                            onClick={() => setLegalArea(m)}
+                            className={`p-3 rounded-lg text-xs font-medium text-left transition-all ${
+                              legalArea === m 
+                                ? 'bg-amber-200 text-slate-900 font-bold' 
+                                : 'bg-slate-900 text-slate-300 border border-slate-700'
+                            }`}
+                          >
+                            {m}
+                          </button>
+                        ))}
                       </div>
 
                       <a 
-                        href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Apex Abogados Alicante, quiero coordinar una consulta profesional sobre Derecho Mercantil.`)}`}
+                        href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Apex Abogados Alicante, solicito consulta sobre: ${legalArea}.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full py-3.5 rounded-xl bg-amber-200 hover:bg-amber-100 text-slate-900 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md"
                       >
                         <Briefcase className="w-4 h-4" />
-                        <span>Solicitar Consulta por WhatsApp</span>
+                        <span>Solicitar Cita con un Abogado por WhatsApp</span>
                       </a>
                     </div>
 
@@ -1386,7 +1554,7 @@ export default function App() {
 
             <div className="bg-zinc-900/90 px-6 py-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
               <span className="text-xs text-zinc-400">
-                {isEn ? 'Want a tailor-made website for your business?' : '¿Querés una web a medida con esta misma identidad para tu negocio?'}
+                ¿Querés una web a medida con esta misma identidad para tu negocio?
               </span>
               <a 
                 href={whatsappUrl}
@@ -1394,7 +1562,7 @@ export default function App() {
                 rel="noopener noreferrer"
                 className="px-5 py-2.5 rounded-xl bg-white text-black font-display font-bold text-xs hover:bg-zinc-200 transition-all flex items-center gap-2 shadow-sm"
               >
-                <span>{isEn ? 'Request quote with Célere' : 'Cotizar una web como esta con Célere'}</span>
+                <span>Cotizar una web como esta con Célere</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </a>
             </div>
@@ -1405,105 +1573,166 @@ export default function App() {
       </section>
 
       {/* =========================================================================
-          AUDITORÍA INSTAGRAM
+          NUEVA SECCIÓN: PRESUPUESTADOR TRANSPARENTE EN 3 PASOS (SIN RODEOS)
          ========================================================================= */}
-      <section id="scanner" className="py-24 px-6 border-b border-white/15 bg-zinc-950 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
+      <section id="presupuesto" className="py-24 px-6 border-b border-white/15 bg-zinc-950 relative z-10">
+        <div className="max-w-5xl mx-auto">
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/15 text-zinc-300 text-xs font-mono mb-4">
-            <InstagramIcon className="w-3.5 h-3.5 text-pink-500" />
-            <span>DIAGNÓSTICO SEGÚN TU CUENTA DE INSTAGRAM</span>
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs font-mono uppercase tracking-widest text-zinc-400 mb-3 block font-bold">
+              // PRECIOS CLAROS Y TRANSPARENTES ({country.currency})
+            </span>
+            <h2 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Calculá tu presupuesto en 3 clics
+            </h2>
+            <p className="text-sm text-zinc-400 mt-4 leading-relaxed">
+              Sin presupuestos inflados ni sorpresas. Seleccioná lo que necesita tu negocio y conocé el precio estimado de desarrollo y mantenimiento mensual.
+            </p>
           </div>
 
-          <h2 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight mb-4">
-            Auditá tu Instagram y descubrí cuántas ventas perdés
-          </h2>
-          <p className="text-sm text-zinc-400 max-w-xl mx-auto mb-10 leading-relaxed">
-            Ingresá el usuario de Instagram de tu negocio (ej: <span className="text-white font-mono">@bistro_alicante</span> o <span className="text-white font-mono">@clinicadental</span>). Analizaremos la efectividad de tu link actual y la fuga de clientes.
-          </p>
-
-          <form onSubmit={handleStartScan} className="max-w-xl mx-auto flex flex-col sm:flex-row gap-3 mb-8">
-            <div className="relative flex-1">
-              <input 
-                type="text" 
-                value={instaInput}
-                onChange={(e) => setInstaInput(e.target.value)}
-                placeholder="Ej: @tunegocio o tuweb.es"
-                className="w-full px-5 py-4 rounded-xl bg-black border border-white/20 text-white font-mono text-xs focus:outline-none focus:border-white transition-colors"
-              />
-              <Search className="w-4 h-4 text-zinc-500 absolute right-4 top-1/2 -translate-y-1/2" />
-            </div>
-
-            <button
-              type="submit"
-              disabled={scanState === 'scanning'}
-              className="px-8 py-4 rounded-xl font-display font-bold text-xs bg-white text-black hover:bg-zinc-200 transition-all disabled:opacity-50 shrink-0 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-            >
-              {scanState === 'scanning' ? 'Analizando...' : 'Auditar Cuenta'}
-            </button>
-          </form>
-
-          {scanState === 'scanning' && (
-            <div className="max-w-md mx-auto p-6 rounded-2xl bg-black border border-white/15 text-left font-mono text-xs space-y-3">
-              <div className="flex justify-between text-zinc-400 text-[10px]">
-                <span>ANALIZANDO ENLACE DE BIOGRAFÍA...</span>
-                <span>{scanProgress}%</span>
-              </div>
-              <div className="w-full bg-zinc-900 h-2 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-pink-500 to-emerald-400 transition-all duration-300"
-                  style={{ width: `${scanProgress}%` }}
-                />
-              </div>
-              <div className="text-[11px] text-zinc-400">
-                {scanProgress < 40 && '● Inspeccionando biografía y enlace de contacto...'}
-                {scanProgress >= 40 && scanProgress < 80 && '● Midiendo fricción en apertura de WhatsApp...'}
-                {scanProgress >= 80 && '● Calculando visitantes que se van sin escribir...'}
-              </div>
-            </div>
-          )}
-
-          {scanState === 'done' && scannedData && (
-            <div className="max-w-xl mx-auto p-6 rounded-2xl bg-black border border-emerald-500/40 text-left space-y-4 shadow-[0_0_30px_rgba(16,185,129,0.15)] font-mono">
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <InstagramIcon className="w-4 h-4 text-pink-400" />
-                  <span className="text-xs font-bold text-white uppercase">{scannedData.handle} ({scannedData.followers})</span>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Opciones */}
+            <div className="lg:col-span-7 space-y-6 p-6 sm:p-8 rounded-2xl bg-black border border-white/15 font-mono">
+              
+              {/* Paso 1: Tipo de Web */}
+              <div>
+                <label className="text-xs text-zinc-400 uppercase tracking-wider block mb-3 font-bold">
+                  1. TIPO DE PROYECTO
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {[
+                    { id: 'landing', label: 'Landing Page Rápida', price: 390 },
+                    { id: 'corp', label: 'Web Corporativa Completa', price: 750 },
+                    { id: 'store', label: 'Tienda Online / Catálogo', price: 1150 },
+                    { id: 'redesign', label: 'Rediseño & Aceleración', price: 480 },
+                  ].map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setCalcType(item.id as any)}
+                      className={`p-3.5 rounded-xl text-left border transition-all ${
+                        calcType === item.id 
+                          ? 'bg-white text-black font-bold border-white shadow-sm' 
+                          : 'bg-zinc-900 text-zinc-300 border-white/10 hover:border-white/30'
+                      }`}
+                    >
+                      <div className="text-xs">{item.label}</div>
+                      <div className={`text-xs mt-1 ${calcType === item.id ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                        {formatMoney(item.price)}
+                      </div>
+                    </button>
+                  ))}
                 </div>
+              </div>
+
+              {/* Paso 2: Plan de Mantenimiento Mensual */}
+              <div>
+                <label className="text-xs text-zinc-400 uppercase tracking-wider block mb-3 font-bold">
+                  2. PLAN DE MANTENIMIENTO MENSUAL
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    { id: 'pro', label: 'Pro (Recomendado)', desc: 'Hosting rápido + soporte WhatsApp + cambios ilimitados', price: 49 },
+                    { id: 'basic', label: 'Básico', desc: 'Hosting rápido + copias semanales + SSL', price: 29 },
+                    { id: 'none', label: 'Sin Abono', desc: 'Te entregamos el código y te autogestionas', price: 0 },
+                  ].map((m) => (
+                    <button
+                      key={m.id}
+                      onClick={() => setCalcMaintenance(m.id as any)}
+                      className={`p-3 rounded-xl text-left border transition-all ${
+                        calcMaintenance === m.id 
+                          ? 'bg-white text-black font-bold border-white' 
+                          : 'bg-zinc-900 text-zinc-300 border-white/10 hover:border-white/30'
+                      }`}
+                    >
+                      <div className="text-xs">{m.label}</div>
+                      <div className="text-[10px] text-zinc-500 mt-1">{m.desc}</div>
+                      <div className="text-xs font-bold mt-2">
+                        {m.price === 0 ? '0 €' : `${formatMoney(m.price)}/mes`}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Paso 3: Urgencia de Entrega */}
+              <div>
+                <label className="text-xs text-zinc-400 uppercase tracking-wider block mb-3 font-bold">
+                  3. PLAZO DE ENTREGA
+                </label>
+                <div className="grid grid-cols-2 gap-2.5 text-xs">
+                  <button
+                    onClick={() => setCalcUrgency('standard')}
+                    className={`p-3 rounded-xl text-left border ${
+                      calcUrgency === 'standard' ? 'bg-white text-black font-bold border-white' : 'bg-zinc-900 text-zinc-300 border-white/10'
+                    }`}
+                  >
+                    <div>Estándar (5 a 7 días)</div>
+                    <div className="text-[10px] text-zinc-500 mt-0.5">Sin coste adicional</div>
+                  </button>
+                  <button
+                    onClick={() => setCalcUrgency('express')}
+                    className={`p-3 rounded-xl text-left border ${
+                      calcUrgency === 'express' ? 'bg-white text-black font-bold border-white' : 'bg-zinc-900 text-zinc-300 border-white/10'
+                    }`}
+                  >
+                    <div>Express (48 horas)</div>
+                    <div className="text-[10px] text-zinc-500 mt-0.5">+{formatMoney(150)} prioridad máxima</div>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Ficha Resumen del Presupuesto */}
+            <div className="lg:col-span-5 p-6 sm:p-8 rounded-2xl bg-black border border-white/20 font-mono space-y-5 shadow-2xl">
+              
+              <div className="flex justify-between items-center pb-4 border-b border-white/10">
+                <span className="text-xs uppercase tracking-widest text-zinc-400 font-bold">PRESUPUESTO ESTIMADO</span>
                 <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">
-                  DIAGNÓSTICO LISTO
+                  ENTREGA EN {budget.days.toUpperCase()}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-zinc-950 border border-white/10">
-                  <span className="text-zinc-500 text-[10px] block">CLIENTES QUE SE VAN AL ENTRAR</span>
-                  <span className="text-red-400 font-bold text-base">{scannedData.bounceRate}</span>
+              <div className="space-y-3">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-400">Desarrollo inicial a medida:</span>
+                  <span className="text-white font-bold">{formatMoney(budget.initialTotal)}</span>
                 </div>
-                <div className="p-3 rounded-lg bg-zinc-950 border border-white/10">
-                  <span className="text-zinc-500 text-[10px] block">VENTAS ESTIMADAS PERDIDAS</span>
-                  <span className="text-amber-400 font-bold text-base">~{scannedData.lostClients} ventas/mes</span>
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-400">Mantenimiento y soporte mensual:</span>
+                  <span className="text-emerald-400 font-bold">
+                    {budget.monthlyTotal === 0 ? '0 €' : `${formatMoney(budget.monthlyTotal)} /mes`}
+                  </span>
                 </div>
               </div>
 
-              <div className="text-xs text-zinc-300 leading-relaxed bg-zinc-900/60 p-3 rounded-xl border border-white/5 space-y-1">
-                <div className="text-white font-bold">Problema detectado en {scannedData.handle}:</div>
-                <p className="text-zinc-400 text-[11px]">
-                  Tus seguidores hacen clic en el link de la bio pero encuentran un linktree genérico o un chat en blanco. Pierden tiempo preguntando precios y abandonan la consulta ({scannedData.wastedRevenue} de facturación desaprovechada).
-                </p>
+              <div className="p-4 rounded-xl bg-zinc-900/80 border border-white/10 text-xs text-zinc-300 space-y-2">
+                <div className="text-white font-bold flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Incluido con Célere:</span>
+                </div>
+                <ul className="text-[11px] text-zinc-400 space-y-1 list-disc list-inside">
+                  <li>Diseño único adaptable a móviles y tablets</li>
+                  <li>Conexión de dominio propio con certificado SSL</li>
+                  <li>Botón directo a tu WhatsApp con mensaje pre-armado</li>
+                  <li>Cero permanencia: cancelas el mantenimiento cuando quieras</li>
+                </ul>
               </div>
 
               <a 
-                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Célere, acabo de auditar mi Instagram (${scannedData.handle}) en su web y quiero que me armen la propuesta para solucionar la fuga de clientes.`)}`}
+                href={`https://wa.me/34600000000?text=${encodeURIComponent(`Hola Célere! Hice mi presupuesto en su web para un proyecto de ${formatMoney(budget.initialTotal)} con mantenimiento de ${formatMoney(budget.monthlyTotal)}/mes. Me gustaría ponerlo en marcha.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3.5 rounded-xl bg-white text-black font-display font-bold text-xs flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-md"
+                className="w-full py-4 rounded-xl bg-white text-black font-display font-black text-xs flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-lg"
               >
-                <span>Recibir solución a medida para {scannedData.handle}</span>
-                <ArrowRight className="w-4 h-4" />
+                <Send className="w-4 h-4" />
+                <span>Pedir este presupuesto por WhatsApp</span>
               </a>
+
             </div>
-          )}
+
+          </div>
 
         </div>
       </section>
@@ -1620,13 +1849,11 @@ export default function App() {
                 // SERVICIOS & ACOMPAÑAMIENTO
               </span>
               <h2 className="font-display text-3xl sm:text-5xl font-black text-white tracking-tight">
-                {isEn ? 'Creation + Monthly Maintenance' : 'Construcción + Mantenimiento Mensual'}
+                Construcción + Mantenimiento Mensual
               </h2>
             </div>
             <p className="text-xs font-mono text-zinc-400 max-w-sm">
-              {isEn 
-                ? 'We don’t abandon you after launch. We handle technical support, servers, and updates month by month.'
-                : 'No te dejamos solo una vez entregada la web. Nos ocupamos del soporte técnico, servidores y actualizaciones mes a mes.'}
+              No te dejamos solo una vez entregada la web. Nos ocupamos del soporte técnico, servidores y actualizaciones mes a mes.
             </p>
           </div>
 
@@ -1697,7 +1924,7 @@ export default function App() {
       </section>
 
       {/* =========================================================================
-          FOOTER CON BARRA VERDECITA DE PERSONITAS 3D EXPLOSIVAS
+          FOOTER CON BARRA VERDECITA DE PERSONITAS CHIBI 3D EXPLOSIVAS
          ========================================================================= */}
       <footer className="pt-12 pb-16 px-6 border-t border-white/15 bg-black text-xs font-mono text-zinc-400 relative z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 mb-8">
@@ -1710,23 +1937,25 @@ export default function App() {
 
           <div className="flex items-center gap-6">
             <a href="#demos" className="hover:text-white transition-colors">Demos</a>
-            <a href="#scanner" className="hover:text-white transition-colors">Auditoría</a>
+            <a href="#presupuesto" className="hover:text-white transition-colors">Presupuestador</a>
             <a href="#roi" className="hover:text-white transition-colors">Calculadora</a>
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">WhatsApp</a>
           </div>
 
         </div>
 
-        {/* BARRA VERDECITA CON PERSONITAS 3D QUE EXPLOTAN AL CAERLES CÓDIGO */}
+        {/* BARRA VERDECITA CON PERSONAJES QUE REACCIONAN AL GIROSCOPIO / INCLINACIÓN MÓVIL */}
         <div className="max-w-7xl mx-auto h-9 rounded-xl bg-emerald-950/80 border border-emerald-500/40 px-4 flex items-center justify-between text-[11px] font-mono text-emerald-400 relative overflow-hidden select-none">
           <div className="flex items-center gap-2 z-10 pointer-events-none">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-bold">ZONA INTERACTIVA:</span>
-            <span className="text-emerald-300 hidden sm:inline">Hacé clic en la pantalla para arrojar código sobre las personitas y verlas explotar</span>
+            <span className="text-emerald-300 hidden sm:inline">
+              En móvil inclina tu teléfono para mover a los personajes. Clic para lanzar código o haz que los aviones los alcancen.
+            </span>
           </div>
 
           <span className="text-[10px] text-emerald-400/80 font-bold z-10 pointer-events-none">
-            [ WIREFRAME WALKERS 3D ]
+            [ GYRO_PHYSICS // MASCOTS ]
           </span>
         </div>
       </footer>
